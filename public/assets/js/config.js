@@ -2,8 +2,18 @@
 let currentConfig = {};
 let fixedExpenses = [];
 let savings = [];
+let purchaseHistory = []; // ✅ NOVA VARIÁVEL
 let editingItem = null;
 let editingType = null;
+
+// Função para obter data/hora no fuso horário de São Paulo
+function getBrazilDateTime(dateString = null) {
+  const date = dateString ? new Date(dateString) : new Date();
+  const brazilTime = new Date(
+    date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+  );
+  return brazilTime.toISOString();
+}
 
 // Inicializar quando DOM estiver carregado
 document.addEventListener("DOMContentLoaded", function () {
@@ -80,21 +90,29 @@ async function loadAllData() {
   console.log("📡 Carregando todos os dados...");
 
   try {
-    // Carregar dados em paralelo
-    const [configData, fixedData, savingsData] = await Promise.all([
+    // Carregar dados em paralelo (incluindo purchase history)
+    const [
+      configData,
+      fixedData,
+      savingsData,
+      purchaseData,
+    ] = await Promise.all([
       fetchConfig(),
       fetchFixedExpenses(),
       fetchSavings(),
+      fetchPurchaseHistory(), // ✅ NOVA FUNÇÃO
     ]);
 
     currentConfig = configData;
     fixedExpenses = fixedData;
     savings = savingsData;
+    purchaseHistory = purchaseData; // ✅ NOVA VARIÁVEL
 
     // Renderizar dados
     populateBasicConfig();
     renderFixedExpenses();
     renderSavings();
+    renderPurchaseHistory(); // ✅ NOVA FUNÇÃO
   } catch (error) {
     console.error("❌ Erro ao carregar dados:", error);
     throw error;
@@ -118,6 +136,19 @@ function setupEventListeners() {
   document
     .getElementById("add-savings-form")
     .addEventListener("submit", handleAddSavingsSubmit);
+
+  // ✅ NOVO: Event listener para histórico de compras
+  document
+    .getElementById("purchase-history-form")
+    .addEventListener("submit", handlePurchaseHistorySubmit);
+
+  // ✅ NOVO: Calcular parcela automaticamente
+  document
+    .getElementById("purchase-total")
+    .addEventListener("input", calculateInstallmentValue);
+  document
+    .getElementById("purchase-installments")
+    .addEventListener("input", calculateInstallmentValue);
 
   // Modal
   document.querySelectorAll(".close-modal").forEach((btn) => {
@@ -185,6 +216,25 @@ async function fetchSavings() {
     return result.data || [];
   } catch (error) {
     console.log("📝 Nenhuma caixinha encontrada");
+    return [];
+  }
+}
+
+// ✅ NOVA FUNÇÃO: Buscar histórico de compras
+async function fetchPurchaseHistory() {
+  try {
+    const response = await fetch(
+      `${window.location.origin}/api/purchase-history`
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erro ao buscar histórico de compras");
+    }
+
+    return result.data || [];
+  } catch (error) {
+    console.log("📝 Nenhuma compra parcelada encontrada");
     return [];
   }
 }
@@ -317,6 +367,65 @@ async function handleSavingsSubmit(e) {
   }
 }
 
+// ✅ NOVA FUNÇÃO: Handle submit do formulário de histórico de compras
+async function handlePurchaseHistorySubmit(e) {
+  e.preventDefault();
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  setButtonLoading(submitBtn, true);
+
+  try {
+    const formData = new FormData(e.target);
+    const purchaseData = {
+      description: formData.get("description"),
+      total_amount: parseFloat(formData.get("total_amount")),
+      installment_count: parseInt(formData.get("installment_count")),
+      installment_value: parseFloat(formData.get("installment_value")),
+      first_installment_date: formData.get("first_installment_date"),
+    };
+
+    console.log("💾 Salvando compra parcelada:", purchaseData);
+
+    const response = await fetch(
+      `${window.location.origin}/api/purchase-history`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(purchaseData),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erro ao salvar compra parcelada");
+    }
+
+    purchaseHistory.push(result.data);
+    renderPurchaseHistory();
+    e.target.reset();
+    showSuccess("Compra parcelada adicionada com sucesso!");
+  } catch (error) {
+    console.error("❌ Erro ao salvar compra parcelada:", error);
+    showError(error.message);
+  } finally {
+    setButtonLoading(submitBtn, false);
+  }
+}
+
+// ✅ NOVA FUNÇÃO: Calcular valor da parcela automaticamente
+function calculateInstallmentValue() {
+  const total =
+    parseFloat(document.getElementById("purchase-total").value) || 0;
+  const installments =
+    parseInt(document.getElementById("purchase-installments").value) || 1;
+  const installmentValue = total / installments;
+
+  document.getElementById(
+    "purchase-installment-value"
+  ).value = installmentValue.toFixed(2);
+}
+
 // =====================================
 // RENDER FUNCTIONS
 // =====================================
@@ -424,6 +533,107 @@ function renderSavings() {
     .join("");
 }
 
+// ✅ NOVA FUNÇÃO: Renderizar histórico de compras
+function renderPurchaseHistory() {
+  const container = document.getElementById("purchase-history-list");
+  const totalElement = document.getElementById("purchase-monthly-total");
+
+  if (purchaseHistory.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>Nenhuma compra parcelada cadastrada ainda</p>
+      </div>
+    `;
+    totalElement.textContent = "R$ 0,00";
+    return;
+  }
+
+  let monthlyTotal = 0;
+  const now = new Date();
+
+  container.innerHTML = purchaseHistory
+    .map((purchase) => {
+      const installmentsPaid = calculateInstallmentsPaid(purchase, now);
+      const isActive =
+        purchase.is_active && installmentsPaid < purchase.installment_count;
+      const progressPercentage =
+        (installmentsPaid / purchase.installment_count) * 100;
+
+      // Se a compra está ativa, somar ao total mensal
+      if (isActive) {
+        monthlyTotal += parseFloat(purchase.installment_value);
+      }
+
+      return `
+        <div class="list-item purchase-history">
+          <div class="purchase-status ${isActive ? "active" : "completed"}">
+            ${isActive ? "Ativa" : "Finalizada"}
+          </div>
+          <div class="item-info">
+            <h4>${purchase.description}</h4>
+            <div class="purchase-info">
+              <div class="purchase-detail">
+                <span class="purchase-detail-label">Valor Total</span>
+                <span class="purchase-detail-value">${formatCurrency(
+                  purchase.total_amount
+                )}</span>
+              </div>
+              <div class="purchase-detail">
+                <span class="purchase-detail-label">Parcelas</span>
+                <span class="purchase-detail-value">${installmentsPaid}/${
+        purchase.installment_count
+      }</span>
+              </div>
+              <div class="purchase-detail">
+                <span class="purchase-detail-label">Valor/Parcela</span>
+                <span class="purchase-detail-value">${formatCurrency(
+                  purchase.installment_value
+                )}</span>
+              </div>
+              <div class="purchase-detail">
+                <span class="purchase-detail-label">Primeira Parcela</span>
+                <span class="purchase-detail-value">${new Date(
+                  purchase.first_installment_date
+                ).toLocaleDateString("pt-BR")}</span>
+              </div>
+            </div>
+            <div class="purchase-progress">
+              <div class="purchase-progress-bar">
+                <div class="purchase-progress-fill" style="width: ${progressPercentage}%"></div>
+              </div>
+              <div class="purchase-progress-text">
+                <span>${installmentsPaid} de ${
+        purchase.installment_count
+      } pagas</span>
+                <span>${progressPercentage.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary" onclick="editPurchaseHistory(${
+              purchase.id
+            })">Editar</button>
+            <button class="btn btn-danger" onclick="deletePurchaseHistory(${
+              purchase.id
+            })">Excluir</button>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  totalElement.textContent = formatCurrency(monthlyTotal);
+}
+
+// ✅ NOVA FUNÇÃO: Calcular quantas parcelas já foram pagas
+function calculateInstallmentsPaid(purchase, currentDate) {
+  const firstInstallment = new Date(purchase.first_installment_date);
+  const monthsDiff =
+    (currentDate.getFullYear() - firstInstallment.getFullYear()) * 12 +
+    (currentDate.getMonth() - firstInstallment.getMonth());
+  return Math.max(0, Math.min(monthsDiff + 1, purchase.installment_count));
+}
+
 // =====================================
 // MODAL FUNCTIONS
 // =====================================
@@ -476,6 +686,63 @@ function editSavings(id) {
   showModal("edit-modal");
 }
 
+// ✅ NOVA FUNÇÃO: Editar compra parcelada
+function editPurchaseHistory(id) {
+  const purchase = purchaseHistory.find((item) => item.id === id);
+  if (!purchase) return;
+
+  editingItem = purchase;
+  editingType = "purchase-history";
+
+  document.getElementById("modal-title").textContent =
+    "Editar Compra Parcelada";
+  document.getElementById("edit-form-content").innerHTML = `
+    <div class="form-group">
+      <label for="edit-description">Descrição da Compra*</label>
+      <input type="text" id="edit-description" name="description" value="${
+        purchase.description
+      }" required>
+    </div>
+    <div class="form-group">
+      <label for="edit-total">Valor Total (R$)*</label>
+      <input type="number" id="edit-total" name="total_amount" value="${
+        purchase.total_amount
+      }" step="0.01" required>
+    </div>
+    <div class="form-group">
+      <label for="edit-count">Número de Parcelas*</label>
+      <input type="number" id="edit-count" name="installment_count" value="${
+        purchase.installment_count
+      }" min="1" required>
+    </div>
+    <div class="form-group">
+      <label for="edit-value">Valor da Parcela (R$)*</label>
+      <input type="number" id="edit-value" name="installment_value" value="${
+        purchase.installment_value
+      }" step="0.01" required>
+    </div>
+    <div class="form-group">
+      <label for="edit-first-date">Data da Primeira Parcela*</label>
+      <input type="date" id="edit-first-date" name="first_installment_date" value="${
+        purchase.first_installment_date.split("T")[0]
+      }" required>
+    </div>
+    <div class="form-group">
+      <label for="edit-active">Status</label>
+      <select id="edit-active" name="is_active">
+        <option value="true" ${
+          purchase.is_active ? "selected" : ""
+        }>Ativa</option>
+        <option value="false" ${
+          !purchase.is_active ? "selected" : ""
+        }>Finalizada</option>
+      </select>
+    </div>
+  `;
+
+  showModal("edit-modal");
+}
+
 function addToSavings(id) {
   const saving = savings.find((item) => item.id === id);
   if (!saving) return;
@@ -504,6 +771,8 @@ async function handleEditSubmit(e) {
       await updateFixedExpense(formData);
     } else if (editingType === "savings") {
       await updateSavings(formData);
+    } else if (editingType === "purchase-history") {
+      await updatePurchaseHistory(formData); // ✅ NOVA FUNÇÃO
     }
 
     closeModal();
@@ -630,6 +899,42 @@ async function updateSavings(formData) {
   showSuccess("Caixinha atualizada com sucesso!");
 }
 
+// ✅ NOVA FUNÇÃO: Atualizar compra parcelada
+async function updatePurchaseHistory(formData) {
+  const purchaseData = {
+    description: formData.get("description"),
+    total_amount: parseFloat(formData.get("total_amount")),
+    installment_count: parseInt(formData.get("installment_count")),
+    installment_value: parseFloat(formData.get("installment_value")),
+    first_installment_date: formData.get("first_installment_date"),
+    is_active: formData.get("is_active") === "true",
+  };
+
+  const response = await fetch(
+    `${window.location.origin}/api/purchase-history/${editingItem.id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(purchaseData),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || "Erro ao atualizar compra parcelada");
+  }
+
+  // Atualizar dados locais
+  const index = purchaseHistory.findIndex((item) => item.id === editingItem.id);
+  if (index !== -1) {
+    purchaseHistory[index] = result.data;
+  }
+
+  renderPurchaseHistory();
+  showSuccess("Compra parcelada atualizada com sucesso!");
+}
+
 // =====================================
 // DELETE FUNCTIONS
 // =====================================
@@ -682,6 +987,33 @@ async function deleteSavings(id) {
     showSuccess("Caixinha excluída com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao excluir caixinha:", error);
+    showError(error.message);
+  }
+}
+
+// ✅ NOVA FUNÇÃO: Deletar compra parcelada
+async function deletePurchaseHistory(id) {
+  if (!confirm("Tem certeza que deseja excluir esta compra parcelada?")) return;
+
+  try {
+    const response = await fetch(
+      `${window.location.origin}/api/purchase-history/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Erro ao excluir compra parcelada");
+    }
+
+    purchaseHistory = purchaseHistory.filter((item) => item.id !== id);
+    renderPurchaseHistory();
+    showSuccess("Compra parcelada excluída com sucesso!");
+  } catch (error) {
+    console.error("❌ Erro ao excluir compra parcelada:", error);
     showError(error.message);
   }
 }

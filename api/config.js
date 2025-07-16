@@ -1,6 +1,15 @@
 // api/config.js
 import { createClient } from "@supabase/supabase-js";
 
+// Função para obter data/hora no fuso horário de São Paulo
+function getBrazilDateTime(dateString = null) {
+  const date = dateString ? new Date(dateString) : new Date();
+  const brazilTime = new Date(
+    date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+  );
+  return brazilTime.toISOString();
+}
+
 export default async function handler(req, res) {
   console.log("⚙️ Config API chamada:", req.method);
 
@@ -58,12 +67,17 @@ async function getConfig(req, res, supabase) {
     return res.status(400).json({ error: error.message });
   }
 
-  const config = data[0] || { monthly_income: 0, closing_day: 15 };
+  const config = data[0] || {
+    monthly_income: 0,
+    closing_day: 15,
+    purchase_history: [], // Campo para histórico de compras
+  };
+
   res.status(200).json({ data: config });
 }
 
 async function createConfig(req, res, supabase) {
-  const { monthly_income, closing_day } = req.body;
+  const { monthly_income, closing_day, purchase_history } = req.body;
 
   if (!monthly_income || !closing_day) {
     return res
@@ -71,14 +85,16 @@ async function createConfig(req, res, supabase) {
       .json({ error: "Renda mensal e dia de fechamento são obrigatórios" });
   }
 
+  const configData = {
+    monthly_income: parseFloat(monthly_income),
+    closing_day: parseInt(closing_day),
+    purchase_history: purchase_history || [],
+    created_at: getBrazilDateTime(),
+  };
+
   const { data, error } = await supabase
     .from("user_config")
-    .insert([
-      {
-        monthly_income: parseFloat(monthly_income),
-        closing_day: parseInt(closing_day),
-      },
-    ])
+    .insert([configData])
     .select();
 
   if (error) {
@@ -91,7 +107,7 @@ async function createConfig(req, res, supabase) {
 }
 
 async function updateConfig(req, res, supabase) {
-  const { id, monthly_income, closing_day } = req.body;
+  const { id, monthly_income, closing_day, purchase_history } = req.body;
 
   // Se não tem ID, tenta encontrar o primeiro registro
   if (!id) {
@@ -108,13 +124,16 @@ async function updateConfig(req, res, supabase) {
     }
   }
 
+  const updateData = {
+    monthly_income: parseFloat(monthly_income),
+    closing_day: parseInt(closing_day),
+    purchase_history: purchase_history || [],
+    updated_at: getBrazilDateTime(),
+  };
+
   const { data, error } = await supabase
     .from("user_config")
-    .update({
-      monthly_income: parseFloat(monthly_income),
-      closing_day: parseInt(closing_day),
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", req.body.id)
     .select();
 

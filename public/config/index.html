@@ -134,6 +134,100 @@
             </form>
           </section>
 
+          <!-- ✅ NOVA SEÇÃO: Histórico de Compras Parceladas -->
+          <section class="config-section">
+            <div class="section-header">
+              <h2>💳 Histórico de Compras Parceladas</h2>
+              <p>
+                Cadastre compras parceladas que já estão no seu cartão para
+                incluir no cálculo da fatura
+              </p>
+            </div>
+
+            <form id="purchase-history-form" class="config-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="purchase-description">Descrição da Compra*</label>
+                  <input
+                    type="text"
+                    id="purchase-description"
+                    name="description"
+                    required
+                    placeholder="Ex: iPhone 15 Pro, Notebook Dell..."
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="purchase-total">Valor Total (R$)*</label>
+                  <input
+                    type="number"
+                    id="purchase-total"
+                    name="total_amount"
+                    step="0.01"
+                    required
+                    placeholder="6000.00"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="purchase-installments">Número de Parcelas*</label>
+                  <input
+                    type="number"
+                    id="purchase-installments"
+                    name="installment_count"
+                    min="1"
+                    max="48"
+                    required
+                    placeholder="12"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="purchase-installment-value"
+                    >Valor da Parcela (R$)*</label
+                  >
+                  <input
+                    type="number"
+                    id="purchase-installment-value"
+                    name="installment_value"
+                    step="0.01"
+                    required
+                    placeholder="500.00"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="purchase-first-date"
+                    >Data da Primeira Parcela*</label
+                  >
+                  <input
+                    type="date"
+                    id="purchase-first-date"
+                    name="first_installment_date"
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-accent">
+                Adicionar Compra Parcelada
+              </button>
+            </form>
+
+            <div class="list-container">
+              <h3>Compras Parceladas Cadastradas</h3>
+              <div id="purchase-history-list" class="items-list">
+                <!-- Lista de compras parceladas será inserida aqui -->
+              </div>
+              <div class="list-summary">
+                <strong
+                  >Valor Mensal das Parcelas:
+                  <span id="purchase-monthly-total">R$ 0,00</span></strong
+                >
+              </div>
+            </div>
+          </section>
+
           <!-- Gastos Fixos -->
           <section class="config-section">
             <div class="section-header">

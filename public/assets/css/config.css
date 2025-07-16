@@ -631,6 +631,95 @@ body {
 }
 
 /* =====================================
+   ESTILOS PARA HISTÓRICO DE COMPRAS
+   ===================================== */
+
+/* Purchase History Specific Styles */
+.list-item.purchase-history {
+  border-left-color: #2196f3;
+  position: relative;
+}
+
+.purchase-status {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.purchase-status.active {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.purchase-status.completed {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.purchase-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.purchase-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.purchase-detail-label {
+  color: #666;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.purchase-detail-value {
+  color: #333;
+  font-weight: 500;
+}
+
+.purchase-progress {
+  margin-top: 12px;
+}
+
+.purchase-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.purchase-progress-fill {
+  height: 100%;
+  background-color: #2196f3;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.purchase-progress-text {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #666;
+}
+
+/* Readonly input styling */
+input[readonly] {
+  background-color: #f8f8f8;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* =====================================
    RESPONSIVIDADE MOBILE
    ===================================== */
 
@@ -705,6 +794,22 @@ body {
   .savings-amounts {
     flex-direction: column;
     gap: 4px;
+  }
+
+  /* Mobile adjustments for purchase history */
+  .purchase-info {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .purchase-status {
+    position: static;
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .list-item.purchase-history {
+    padding-top: 16px;
   }
 }
 

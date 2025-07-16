@@ -1,6 +1,18 @@
 // api/expenses.js
 import { createClient } from "@supabase/supabase-js";
 
+// Função para obter data/hora no fuso horário de São Paulo
+function getBrazilDateTime(dateString = null) {
+  const date = dateString ? new Date(dateString) : new Date();
+
+  // Converter para horário de Brasília (UTC-3)
+  const brazilTime = new Date(
+    date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+  );
+
+  return brazilTime.toISOString();
+}
+
 export default async function handler(req, res) {
   console.log("🚀 EXPENSES API chamada:", req.method, req.url);
   console.log("📋 Body recebido:", req.body);
@@ -81,7 +93,7 @@ async function getExpenses(req, res, supabase) {
   res.status(200).json({ data });
 }
 
-// Criar novo gasto - ESTA É A FUNÇÃO PRINCIPAL
+// Criar novo gasto - COM HORÁRIO CORRIGIDO
 async function createExpense(req, res, supabase) {
   console.log("💾 EXPENSES - Criando gasto...", req.body);
 
@@ -122,6 +134,13 @@ async function createExpense(req, res, supabase) {
     });
   }
 
+  // ✅ CORRIGIR HORÁRIO PARA BRASÍLIA
+  const brazilDateTime = created_at
+    ? getBrazilDateTime(created_at)
+    : getBrazilDateTime();
+
+  console.log("🕐 Data/hora corrigida para Brasília:", brazilDateTime);
+
   const expenseData = {
     description,
     amount: parseFloat(amount),
@@ -129,7 +148,7 @@ async function createExpense(req, res, supabase) {
     is_installment: is_installment || false,
     installment_count: installment_count || null,
     installment_value: installment_value || null,
-    created_at: created_at || new Date().toISOString(), // Usar data enviada ou atual
+    created_at: brazilDateTime, // Usar horário de Brasília
   };
 
   console.log("📝 EXPENSES - Dados a serem salvos:", expenseData);
@@ -157,6 +176,11 @@ async function updateExpense(req, res, supabase) {
   const updateData = req.body;
 
   console.log("✏️ Atualizando gasto:", id, updateData);
+
+  // Se está atualizando a data, corrigir para horário de Brasília
+  if (updateData.created_at) {
+    updateData.created_at = getBrazilDateTime(updateData.created_at);
+  }
 
   const { data, error } = await supabase
     .from("expenses")

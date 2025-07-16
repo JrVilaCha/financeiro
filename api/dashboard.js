@@ -1,6 +1,15 @@
 // api/dashboard.js
 import { createClient } from "@supabase/supabase-js";
 
+// Função para obter data/hora no fuso horário de São Paulo
+function getBrazilDateTime(dateString = null) {
+  const date = dateString ? new Date(dateString) : new Date();
+  const brazilTime = new Date(
+    date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+  );
+  return brazilTime.toISOString();
+}
+
 export default async function handler(req, res) {
   console.log("📊 Dashboard API chamada:", req.method);
 
@@ -73,10 +82,17 @@ export default async function handler(req, res) {
       .from("savings")
       .select("*");
 
+    // ✅ NOVO: Buscar histórico de compras parceladas
+    const { data: purchaseHistory, error: purchaseError } = await supabase
+      .from("purchase_history")
+      .select("*")
+      .eq("is_active", true);
+
     console.log("✅ Dados encontrados:", {
       expenses: expenses?.length || 0,
       fixedExpenses: fixedExpenses?.length || 0,
       savings: savings?.length || 0,
+      purchaseHistory: purchaseHistory?.length || 0,
     });
 
     // Calcular métricas básicas
@@ -97,10 +113,19 @@ export default async function handler(req, res) {
       (total, expense) => total + parseFloat(expense.amount),
       0
     );
+
     const fixedExpensesTotal = (fixedExpenses || []).reduce(
       (total, expense) => total + parseFloat(expense.amount),
       0
     );
+
+    // ✅ NOVO: Calcular parcelas do histórico de compras para o mês atual
+    const purchaseHistoryMonthly = calculateMonthlyInstallments(
+      purchaseHistory || [],
+      now
+    );
+
+    console.log("💳 Parcelas do mês atual:", purchaseHistoryMonthly);
 
     // Dias para fechamento
     const closingDay = userConfig.closing_day || 15;
@@ -118,21 +143,31 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
+    // ✅ Adicionar parcelas do histórico ao total do cartão de crédito
+    if (purchaseHistoryMonthly > 0) {
+      expensesByPaymentMethod.credito =
+        (expensesByPaymentMethod.credito || 0) + purchaseHistoryMonthly;
+    }
+
     const dashboardData = {
       summary: {
         monthlyIncome: userConfig.monthly_income || 0,
         closingDay: userConfig.closing_day || 15,
         fixedExpensesTotal,
         monthlyExpensesTotal,
+        purchaseHistoryMonthly, // ✅ NOVO: Parcelas do histórico
+        totalMonthlyExpenses: monthlyExpensesTotal + purchaseHistoryMonthly, // ✅ Total real
         daysToClose,
         availableAmount:
           (userConfig.monthly_income || 0) -
           fixedExpensesTotal -
-          monthlyExpensesTotal,
+          monthlyExpensesTotal -
+          purchaseHistoryMonthly, // ✅ Incluir parcelas no cálculo
       },
       expenses: expenses.slice(0, 10), // Últimos 10 gastos
       fixedExpenses: fixedExpenses || [],
       savings: savings || [],
+      purchaseHistory: purchaseHistory || [], // ✅ NOVO: Histórico de compras
       expensesByPaymentMethod,
     };
 
@@ -145,4 +180,37 @@ export default async function handler(req, res) {
       details: error.message,
     });
   }
+}
+
+// ✅ NOVA FUNÇÃO: Calcular parcelas do histórico para o mês atual
+function calculateMonthlyInstallments(purchaseHistory, currentDate) {
+  let monthlyTotal = 0;
+
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  purchaseHistory.forEach((purchase) => {
+    if (!purchase.is_active) return;
+
+    const firstInstallmentDate = new Date(purchase.first_installment_date);
+    const installmentCount = purchase.installment_count;
+    const installmentValue = purchase.installment_value;
+
+    // Calcular quantas parcelas já passaram
+    const monthsDiff =
+      (currentYear - firstInstallmentDate.getFullYear()) * 12 +
+      (currentMonth - firstInstallmentDate.getMonth());
+
+    // Se ainda está dentro do período de parcelamento e já começou
+    if (monthsDiff >= 0 && monthsDiff < installmentCount) {
+      monthlyTotal += installmentValue;
+      console.log(
+        `💳 Parcela ativa: ${purchase.description} - R$ ${installmentValue} (${
+          monthsDiff + 1
+        }/${installmentCount})`
+      );
+    }
+  });
+
+  return monthlyTotal;
 }

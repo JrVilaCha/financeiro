@@ -14,6 +14,10 @@
       "dest": "/api/savings.js?id=$1"
     },
     {
+      "src": "/api/purchase-history/([^/]+)",
+      "dest": "/api/purchase-history.js?id=$1"
+    },
+    {
       "src": "/api/current-bill",
       "dest": "/api/current-bill.js"
     },
