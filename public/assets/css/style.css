@@ -1,0 +1,654 @@
+/* Reset e configurações básicas */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Mobile Header */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 20px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1001;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mobile-header h1 {
+    font-size: 18px;
+    color: #333;
+}
+
+.mobile-header .user-name {
+    font-size: 14px;
+    color: #666;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+}
+
+.hamburger {
+    width: 20px;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle.active .hamburger:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active .hamburger:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active .hamburger:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 30px 24px 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-header h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #333;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #666;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 20px 0;
+    flex: 1;
+}
+
+.menu-item {
+    margin-bottom: 4px;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-right: 3px solid transparent;
+}
+
+.menu-item a:hover {
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.menu-item.active a {
+    background-color: #f0f0f0;
+    color: #333;
+    border-right-color: #333;
+    font-weight: 500;
+}
+
+.menu-icon {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-text {
+    font-size: 14px;
+}
+
+.sidebar-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #f0f0f0;
+    text-align: center;
+}
+
+.app-version {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.form-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Cabeçalho do formulário */
+.form-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.form-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-header p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Formulário */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #333;
+    background-color: white;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-row.keep-row {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Botões de forma de pagamento */
+.payment-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.payment-button {
+    display: none;
+}
+
+.payment-button-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 12px;
+    background-color: #f8f8f8;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.payment-button-label:hover {
+    background-color: #e8e8e8;
+    border-color: #666;
+}
+
+.payment-button:checked + .payment-button-label {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+
+/* Seção de parcelamento */
+.installment-section {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    display: none;
+}
+
+.installment-section.active {
+    display: block;
+}
+
+.installment-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Botão principal */
+.btn {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Mensagens */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: none;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: none;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 60px;
+    }
+
+    .container {
+        padding: 20px 15px;
+    }
+
+    .form-container {
+        padding: 24px;
+    }
+
+    .form-row:not(.keep-row) {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .payment-button-label {
+        font-size: 13px;
+        padding: 0 8px;
+        white-space: normal;
+        word-break: break-word;
+        min-height: 40px;
+        height: auto;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-button-label {
+        font-size: 12px;
+        padding: 0 6px;
+    }
+
+    .form-header h1 {
+        font-size: 24px;
+    }
+
+    .container {
+        padding: 15px 10px;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+}
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #333;
+    background-color: white;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-row.keep-row {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Botões de forma de pagamento */
+.payment-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.payment-button {
+    display: none;
+}
+
+.payment-button-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 12px;
+    background-color: #f8f8f8;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.payment-button-label:hover {
+    background-color: #e8e8e8;
+    border-color: #666;
+}
+
+.payment-button:checked + .payment-button-label {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+
+/* Seção de parcelamento */
+.installment-section {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    display: none;
+}
+
+.installment-section.active {
+    display: block;
+}
+
+.installment-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Botão principal */
+.btn {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Mensagens */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: none;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: none;
+}
+
+/* Link para dashboard */
+.dashboard-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.dashboard-link a {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dashboard-link a:hover {
+    color: #333;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .form-row:not(.keep-row) {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .payment-button-label {
+        font-size: 13px;
+        padding: 0 8px;
+        white-space: normal;
+        word-break: break-word;
+        min-height: 40px;
+        height: auto;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-button-label {
+        font-size: 12px;
+        padding: 0 6px;
+    }
+}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Financeiro</title>
+    <link
+      rel="stylesheet"
+      href="https://financeiro-red.vercel.app/dashboard/assets/css/dashboard.css"
+    />
+  </head>
+  <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="menu-toggle" id="menu-toggle">
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+      </button>
+      <h1>Dashboard</h1>
+      <div class="user-name" id="mobile-user-name">João Silva</div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>💰 FinanceApp</h2>
+        <div class="user-info">
+          <div class="user-avatar">JS</div>
+          <div class="user-details">
+            <span class="user-name" id="desktop-user-name">João Silva</span>
+            <span class="user-role">Usuário</span>
+          </div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item active">
+          <a href="/dashboard">
+            <span class="menu-icon">📊</span>
+            <span class="menu-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="/">
+            <span class="menu-icon">💸</span>
+            <span class="menu-text">Cadastrar Gasto</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="/config">
+            <span class="menu-icon">⚙️</span>
+            <span class="menu-text">Configurações</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="app-version">v1.0.0</div>
+      </div>
+    </nav>
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <p>Carregando dados...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div
+          id="dashboard-content"
+          class="dashboard-content"
+          style="display: none"
+        >
+          <!-- Summary Cards -->
+          <section class="summary-section">
+            <h2>Resumo do Mês</h2>
+            <div class="summary-grid">
+              <div class="summary-card income">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                  <h3>Renda Mensal</h3>
+                  <div class="card-value" id="monthly-income">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div class="summary-card fixed">
+                <div class="card-icon">📋</div>
+                <div class="card-content">
+                  <h3>Gastos Fixos</h3>
+                  <div class="card-value" id="fixed-expenses">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div class="summary-card expenses">
+                <div class="card-icon">💸</div>
+                <div class="card-content">
+                  <h3>Gastos do Mês</h3>
+                  <div class="card-value" id="monthly-expenses">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div class="summary-card bill">
+                <div class="card-icon">🧾</div>
+                <div class="card-content">
+                  <h3>Fatura Atual</h3>
+                  <div class="card-value" id="current-bill">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div class="summary-card available">
+                <div class="card-icon">💳</div>
+                <div class="card-content">
+                  <h3>Disponível</h3>
+                  <div class="card-value" id="available-amount">R$ 0,00</div>
+                </div>
+              </div>
+
+              <div class="summary-card days">
+                <div class="card-icon">📅</div>
+                <div class="card-content">
+                  <h3>Dias p/ Fechamento</h3>
+                  <div class="card-value" id="days-to-close">0</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Current Bill Section -->
+          <section class="bill-section">
+            <div class="section-header">
+              <h2>🧾 Fatura Atual</h2>
+              <span class="section-subtitle" id="bill-period"
+                >Carregando período...</span
+              >
+            </div>
+            <div class="bill-content">
+              <div class="bill-stats">
+                <div class="bill-stat">
+                  <span class="stat-label">Total da Fatura</span>
+                  <span class="stat-value" id="bill-total">R$ 0,00</span>
+                </div>
+                <div class="bill-stat">
+                  <span class="stat-label">Número de Gastos</span>
+                  <span class="stat-value" id="bill-count">0</span>
+                </div>
+                <div class="bill-stat">
+                  <span class="stat-label">Média Diária</span>
+                  <span class="stat-value" id="bill-daily-avg">R$ 0,00</span>
+                </div>
+                <div class="bill-stat">
+                  <span class="stat-label">Dias Restantes</span>
+                  <span class="stat-value" id="bill-days-remaining">0</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Main Content Grid -->
+          <div class="main-grid">
+            <!-- Recent Expenses -->
+            <section class="content-section">
+              <div class="section-header">
+                <h2>Gastos Recentes</h2>
+                <span class="section-subtitle" id="expenses-count"
+                  >0 gastos</span
+                >
+              </div>
+              <div class="expenses-list" id="recent-expenses">
+                <!-- Gastos serão inseridos aqui -->
+              </div>
+            </section>
+
+            <!-- Payment Methods Chart -->
+            <section class="content-section">
+              <div class="section-header">
+                <h2>Por Forma de Pagamento</h2>
+                <span class="section-subtitle">Este mês</span>
+              </div>
+              <div class="payment-methods" id="payment-methods">
+                <!-- Métodos de pagamento serão inseridos aqui -->
+              </div>
+            </section>
+
+            <!-- Fixed Expenses -->
+            <section class="content-section">
+              <div class="section-header">
+                <h2>Gastos Fixos</h2>
+                <span class="section-subtitle" id="fixed-count">0 itens</span>
+              </div>
+              <div class="fixed-expenses-list" id="fixed-expenses-list">
+                <!-- Gastos fixos serão inseridos aqui -->
+              </div>
+            </section>
+
+            <!-- Savings -->
+            <section class="content-section">
+              <div class="section-header">
+                <h2>Caixinhas</h2>
+                <span class="section-subtitle" id="savings-count"
+                  >0 caixinhas</span
+                >
+              </div>
+              <div class="savings-list" id="savings-list">
+                <!-- Caixinhas serão inseridas aqui -->
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="error-state" style="display: none">
+          <div class="error-icon">⚠️</div>
+          <h3>Erro ao carregar dados</h3>
+          <p id="error-message">
+            Não foi possível carregar as informações do dashboard.
+          </p>
+          <button class="btn" onclick="location.reload()">
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://financeiro-red.vercel.app/dashboard/assets/js/dashboard.js"></script>
+  </body>
+</html>

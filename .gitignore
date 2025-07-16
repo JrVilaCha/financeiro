@@ -1,43 +1,41 @@
-# Logs
-logs
-*.log
+# Dependencies
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel/
+.vercel
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
 # Coverage directory used by tools like istanbul
-coverage
+coverage/
 *.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
+.nyc_output/
 
 # Dependency directories
-node_modules/
 jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -66,31 +64,18 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
+# parcel-bundler cache
+.cache/
+.parcel-cache/
 
 # Nuxt.js build / generate output
-.nuxt
-dist
+.nuxt/
 
 # Gatsby files
 .cache/
-public
 
 # Vuepress build output
-.vuepress/dist
+.vuepress/dist/
 
 # Serverless directories
 .serverless/
@@ -105,19 +90,17 @@ public
 .tern-port
 
 # Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+.vscode-test/
 
 # yarn v2
-.yarn/cache
-.yarn/unplugged
+.yarn/cache/
+.yarn/unplugged/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
 
-# Vercel
-.vercel
-
-# MacOS
+# Operating System Files
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -131,21 +114,58 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# IDEs
+# Linux
+*~
+
+# IDEs and editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # Temporary files
 *.tmp
 *.temp
 
-# Build files
-build/
-dist/
-
 # Local database files
 *.sqlite
 *.db
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+
+# Debug files
+debug.log
+error.log
+
+# Local configuration files that might contain secrets
+config.local.js
+config.local.json
+
+# Backup files
+*.bak
+*.backup
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Keep important directories structure with placeholder files
+# (These comments help maintain folder structure)
+# /public/ - MANTIDO (contém arquivos importantes do frontend)
+# /api/ - MANTIDO (contém as APIs do projeto)
+# package.json - MANTIDO
+# package-lock.json - MANTIDO
+# vercel.json - MANTIDO

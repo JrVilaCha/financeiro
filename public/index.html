@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastrar Gasto</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="menu-toggle" id="menu-toggle">
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+      </button>
+      <h1>Cadastrar Gasto</h1>
+      <div class="user-name" id="mobile-user-name">João Silva</div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>💰 FinanceApp</h2>
+        <div class="user-info">
+          <div class="user-avatar">JS</div>
+          <div class="user-details">
+            <span class="user-name" id="desktop-user-name">João Silva</span>
+            <span class="user-role">Usuário</span>
+          </div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item">
+          <a href="/dashboard">
+            <span class="menu-icon">📊</span>
+            <span class="menu-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item active">
+          <a href="/">
+            <span class="menu-icon">💸</span>
+            <span class="menu-text">Cadastrar Gasto</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="/config">
+            <span class="menu-icon">⚙️</span>
+            <span class="menu-text">Configurações</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="app-version">v1.0.0</div>
+      </div>
+    </nav>
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="form-container">
+          <div class="form-header">
+            <h1>Cadastrar Gasto</h1>
+            <p>Registre seus gastos de forma rápida e prática</p>
+          </div>
+
+          <div id="success-message" class="success-message"></div>
+          <div id="error-message" class="error-message"></div>
+
+          <form id="expense-form">
+            <div class="form-group">
+              <label for="description">Onde gastou / Com o que gastou*</label>
+              <input
+                type="text"
+                id="description"
+                name="description"
+                required
+                placeholder="Ex: Supermercado, Uber, Restaurante..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="amount">Valor (R$)*</label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                step="0.01"
+                required
+                placeholder="0,00"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Forma de Pagamento*</label>
+              <div class="payment-buttons">
+                <input
+                  type="radio"
+                  id="debito"
+                  name="payment_method"
+                  value="debito"
+                  class="payment-button"
+                  required
+                />
+                <label for="debito" class="payment-button-label">Débito</label>
+
+                <input
+                  type="radio"
+                  id="credito"
+                  name="payment_method"
+                  value="credito"
+                  class="payment-button"
+                  required
+                />
+                <label for="credito" class="payment-button-label"
+                  >Crédito</label
+                >
+
+                <input
+                  type="radio"
+                  id="avista"
+                  name="payment_method"
+                  value="avista"
+                  class="payment-button"
+                  required
+                />
+                <label for="avista" class="payment-button-label">À Vista</label>
+
+                <input
+                  type="radio"
+                  id="pix"
+                  name="payment_method"
+                  value="pix"
+                  class="payment-button"
+                  required
+                />
+                <label for="pix" class="payment-button-label">PIX</label>
+              </div>
+            </div>
+
+            <div id="installment-section" class="installment-section">
+              <h3>Informações do Parcelamento</h3>
+              <div class="form-row keep-row">
+                <div class="form-group">
+                  <label for="installment-count">Número de Parcelas*</label>
+                  <select id="installment-count" required>
+                    <option value="">Selecione</option>
+                    <option value="1">À vista</option>
+                    <option value="2">2x</option>
+                    <option value="3">3x</option>
+                    <option value="4">4x</option>
+                    <option value="5">5x</option>
+                    <option value="6">6x</option>
+                    <option value="7">7x</option>
+                    <option value="8">8x</option>
+                    <option value="9">9x</option>
+                    <option value="10">10x</option>
+                    <option value="11">11x</option>
+                    <option value="12">12x</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="installment-value">Valor da Parcela (R$)</label>
+                  <input
+                    type="number"
+                    id="installment-value"
+                    step="0.01"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn" id="submit-btn">
+              Cadastrar Gasto
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="./assets/js/app.js"></script>
+  </body>
+</html>
